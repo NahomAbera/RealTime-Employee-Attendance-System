@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature to Digital PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .image-container {
+            background-color: black;
+            padding: 10px;
+            display: inline-block;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: block;
+        }
+
+        a.download-link {
+            display: block;
+            margin: 10px 0;
+            padding: 10px 0;
+            text-decoration: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+        }
+
+        a.download-link:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Convert Your Paper Signature to Digital PNG</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="signatureInput" name="signature" accept="image/*" required>
+            <button type="submit">Convert & Display</button>
+        </form>
+        <div id="result">
+            <!-- Processed images and download links will be displayed here -->
+        </div>
+    </div>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('signatureInput');
+            formData.append('signature', fileInput.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const images = await response.json();
+                const displayDiv = document.getElementById('result');
+                displayDiv.innerHTML = ''; // Clear previous results
+
+                images.forEach((imgData, index) => {
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+
+                    const img = document.createElement('img');
+                    img.src = `data:image/png;base64,${imgData.image_data}`;
+                    img.alt = `Digital Signature with Threshold ${imgData.threshold}`;
+                    img.style.margin = '10px';
+
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = img.src;
+                    downloadLink.download = `digital_signature_${imgData.threshold}.png`;
+                    downloadLink.textContent = `Download PNG with Threshold ${imgData.threshold}`;
+                    downloadLink.className = 'download-link';
+
+                    imageContainer.appendChild(img);
+                    displayDiv.appendChild(imageContainer);
+                    displayDiv.appendChild(downloadLink);
+                });
+
+                displayDiv.style.display = 'block';
+            } else {
+                alert('Error occurred while processing the image.');
+            }
+        });
+    </script>
+</body>
+</html>
