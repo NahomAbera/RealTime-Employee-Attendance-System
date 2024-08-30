@@ -29,7 +29,7 @@ def upload_file():
     np_img = np.frombuffer(file.read(), np.uint8)
     signature = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
     
-    thresholds = [50, 100, 150, 200, 250]
+    thresholds = [100, 125, 150, 175, 200, 225]
     images = []
 
     for threshold in thresholds:
